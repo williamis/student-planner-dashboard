@@ -182,6 +182,24 @@ function updateDashboard() {
 
   const noDeadline = tasks.filter(t => !t.deadline).length;
   taskNoDeadlineEl.textContent = `Ilman deadlinea: ${noDeadline}`;
+
+  // --- Piirretään graafi ---
+  const ctx = document.getElementById("deadlineChart");
+  if (ctx) {
+    const withDeadline = tasks.filter(t => t.deadline).length;
+    const withoutDeadline = tasks.filter(t => !t.deadline).length;
+
+    new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: ["Deadline asetettu", "Ei deadlinea"],
+        datasets: [{
+          data: [withDeadline, withoutDeadline],
+          backgroundColor: ["#36A2EB", "#FF6384"]
+        }]
+      }
+    });
+  }
 }
 
 // --- Alustetaan näkymä ---
