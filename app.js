@@ -101,21 +101,33 @@ function refreshCourseSelect() {
   });
 }
 
-// --- Tehtävien näyttö (skeleton) ---
+// --- Tehtävien näyttö ---
 function renderTasks() {
   taskList.innerHTML = "";
   tasks.forEach(t => {
     const li = document.createElement("li");
     const courseName =
       courses.find(c => c.id === t.courseId)?.name || "Ei kurssia";
+
     li.innerHTML = `
       <span>${t.title}</span>
       <span class="badge">${courseName}</span>
       <span class="badge">${t.deadline || "-"}</span>
+      <button data-id="${t.id}">Poista</button>
     `;
     taskList.appendChild(li);
   });
+
+  // Poisto
+  taskList.querySelectorAll("button[data-id]").forEach(btn =>
+    btn.addEventListener("click", () => {
+      tasks = tasks.filter(x => x.id !== btn.dataset.id);
+      storage.write(STORAGE_KEYS.TASKS, tasks);
+      renderTasks();
+    })
+  );
 }
+
 // --- Tehtävän lisääminen ---
 function addTask({ title, deadline, courseId }) {
   const id = crypto.randomUUID();
@@ -135,7 +147,6 @@ taskForm.addEventListener("submit", (e) => {
   addTask({ title, deadline, courseId });
   taskForm.reset();
 });
-
 
 // --- Alustetaan näkymä ---
 refreshCourseSelect();
