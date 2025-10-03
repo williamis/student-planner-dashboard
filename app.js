@@ -15,6 +15,7 @@ const storage = {
 
 // Data
 let courses = storage.read(STORAGE_KEYS.COURSES);
+let tasks = storage.read(STORAGE_KEYS.TASKS);
 // --- UI-elementit ---
 const courseForm = document.getElementById("course-form");
 const courseList = document.getElementById("course-list");
