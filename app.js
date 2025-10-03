@@ -1,4 +1,5 @@
 console.log("Study Planner ready");
+let deadlineChartInstance = null;
 
 // --- Tallennuskerros ---
 const STORAGE_KEYS = { COURSES: "sp_courses", TASKS: "sp_tasks" };
@@ -189,7 +190,13 @@ function updateDashboard() {
     const withDeadline = tasks.filter(t => t.deadline).length;
     const withoutDeadline = tasks.filter(t => !t.deadline).length;
 
-    new Chart(ctx, {
+    // Jos graafi on jo olemassa → tuhotaan
+    if (deadlineChartInstance) {
+      deadlineChartInstance.destroy();
+    }
+
+    // Piirretään uusi graafi ja tallennetaan muuttujaan
+    deadlineChartInstance = new Chart(ctx, {
       type: "pie",
       data: {
         labels: ["Deadline asetettu", "Ei deadlinea"],
