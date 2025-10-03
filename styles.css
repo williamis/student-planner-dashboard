@@ -1,0 +1,15 @@
+:root { --gap: 12px; --bg: #0f172a; --panel: #111827; --text: #e5e7eb; --muted:#9ca3af; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto; background: var(--bg); color: var(--text); }
+header { padding: 16px 20px; border-bottom: 1px solid #1f2937; }
+.layout { display: grid; gap: var(--gap); padding: var(--gap); grid-template-columns: 1fr 1fr; grid-auto-rows: minmax(300px, auto); }
+.panel { background: var(--panel); border: 1px solid #1f2937; border-radius: 10px; padding: 12px; }
+h2 { margin-top: 0; }
+form { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+input, select, button { padding: 8px 10px; border-radius: 8px; border: 1px solid #374151; background: #0b1220; color: var(--text); }
+ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+li { padding: 8px; border: 1px solid #374151; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+.badge { font-size: 12px; color: var(--muted); }
+#calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+#calendar-grid .day { border: 1px dashed #374151; min-height: 80px; border-radius: 8px; padding: 6px; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
