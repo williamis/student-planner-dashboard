@@ -113,6 +113,7 @@ function renderTasks() {
       <span>${t.title}</span>
       <span class="badge">${courseName}</span>
       <span class="badge">${t.deadline || "-"}</span>
+      <button data-edit="${t.id}">Muokkaa</button>
       <button data-id="${t.id}">Poista</button>
     `;
     taskList.appendChild(li);
@@ -126,7 +127,26 @@ function renderTasks() {
       renderTasks();
     })
   );
+
+  // Muokkaus
+  taskList.querySelectorAll("button[data-edit]").forEach(btn =>
+    btn.addEventListener("click", () => {
+      const task = tasks.find(x => x.id === btn.dataset.edit);
+      if (!task) return;
+
+      const newTitle = prompt("Anna uusi otsikko:", task.title);
+      const newDeadline = prompt("Anna uusi deadline (vvvv-kk-pp):", task.deadline);
+
+      if (newTitle !== null) {
+        task.title = newTitle.trim();
+        task.deadline = newDeadline.trim();
+        storage.write(STORAGE_KEYS.TASKS, tasks);
+        renderTasks();
+      }
+    })
+  );
 }
+
 
 // --- Tehtävän lisääminen ---
 function addTask({ title, deadline, courseId }) {
