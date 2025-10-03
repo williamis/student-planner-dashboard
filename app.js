@@ -1,7 +1,7 @@
 console.log("Study Planner ready");
 
 // --- Tallennuskerros ---
-const STORAGE_KEYS = { COURSES: "sp_courses" };
+const STORAGE_KEYS = { COURSES: "sp_courses", TASKS: "sp_tasks" };
 
 const storage = {
   read(key, fallback = []) {
