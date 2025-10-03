@@ -8,7 +8,41 @@
 </head>
 <body>
   <header><h1>Study Planner</h1></header>
+ <main class="layout">
+    <section id="courses" class="panel">
+      <h2>Kurssit</h2>
+      <form id="course-form" autocomplete="off">
+        <input id="course-name" placeholder="Kurssin nimi" required />
+        <input id="course-code" placeholder="Koodi (esim. TK00BG71)" />
+        <button type="submit">Lisää kurssi</button>
+      </form>
+      <ul id="course-list"></ul>
+    </section>
 
+    <section id="tasks" class="panel">
+      <h2>Tehtävät</h2>
+      <form id="task-form" autocomplete="off">
+        <input id="task-title" placeholder="Tehtävän nimi" required />
+        <input id="task-deadline" type="date" />
+        <select id="task-course"></select>
+        <button type="submit">Lisää tehtävä</button>
+      </form>
+      <ul id="task-list"></ul>
+    </section>
+
+    <section id="calendar" class="panel">
+      <h2>Kalenteri</h2>
+      <div id="calendar-grid"></div>
+    </section>
+
+    <section id="dashboard" class="panel">
+      <h2>Dashboard</h2>
+      <canvas id="chart-done-vs-todo" height="220"></canvas>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
 
   </body>
 </html>
