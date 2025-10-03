@@ -100,5 +100,24 @@ function refreshCourseSelect() {
     taskCourseSelect.appendChild(opt);
   });
 }
-refreshCourseSelect();
 
+// --- Tehtävien näyttö (skeleton) ---
+function renderTasks() {
+  taskList.innerHTML = "";
+  tasks.forEach(t => {
+    const li = document.createElement("li");
+    const courseName =
+      courses.find(c => c.id === t.courseId)?.name || "Ei kurssia";
+    li.innerHTML = `
+      <span>${t.title}</span>
+      <span class="badge">${courseName}</span>
+      <span class="badge">${t.deadline || "-"}</span>
+    `;
+    taskList.appendChild(li);
+  });
+}
+
+// --- Alustetaan näkymä ---
+refreshCourseSelect();
+renderCourses();
+renderTasks();
