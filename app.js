@@ -20,3 +20,20 @@ const courseForm = document.getElementById("course-form");
 const courseList = document.getElementById("course-list");
 const courseName = document.getElementById("course-name");
 const courseCode = document.getElementById("course-code");
+
+// --- Kurssin lisääminen ---
+function addCourse({ name, code }) {
+  const id = crypto.randomUUID();
+  courses.push({ id, name, code });
+  storage.write(STORAGE_KEYS.COURSES, courses);
+  renderCourses();
+}
+
+courseForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const name = courseName.value.trim();
+  const code = courseCode.value.trim();
+  if (!name) return;
+  addCourse({ name, code });
+  courseForm.reset();
+});
