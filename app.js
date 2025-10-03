@@ -16,17 +16,18 @@ const storage = {
 // Data
 let courses = storage.read(STORAGE_KEYS.COURSES);
 let tasks = storage.read(STORAGE_KEYS.TASKS);
+
 // --- UI-elementit ---
 const courseForm = document.getElementById("course-form");
 const courseList = document.getElementById("course-list");
 const courseName = document.getElementById("course-name");
 const courseCode = document.getElementById("course-code");
+
 const taskForm = document.getElementById("task-form");
 const taskList = document.getElementById("task-list");
 const taskTitle = document.getElementById("task-title");
 const taskDeadline = document.getElementById("task-deadline");
 const taskCourseSelect = document.getElementById("task-course");
-
 
 // --- Kurssin lisääminen ---
 function addCourse({ name, code }) {
@@ -87,11 +88,12 @@ function renderCourses() {
 
   // Päivitä kurssi-dropdown kun kurssilista muuttuu
   refreshCourseSelect();
+  updateDashboard();   // <-- Dashboard päivittyy
 }
 
 // --- Kurssivalikon päivitys tehtäviä varten ---
 function refreshCourseSelect() {
-  if (!taskCourseSelect) return; // varmistus jos lomaketta ei ole
+  if (!taskCourseSelect) return;
   taskCourseSelect.innerHTML = `<option value="">(valitse kurssi)</option>`;
   courses.forEach(c => {
     const opt = document.createElement("option");
@@ -145,8 +147,9 @@ function renderTasks() {
       }
     })
   );
-}
 
+  updateDashboard();   // <-- Dashboard päivittyy
+}
 
 // --- Tehtävän lisääminen ---
 function addTask({ title, deadline, courseId }) {
@@ -161,14 +164,28 @@ taskForm.addEventListener("submit", (e) => {
   const title = taskTitle.value.trim();
   const deadline = taskDeadline.value;
   const courseId = taskCourseSelect.value;
-
-  if (!title) return; // ei lisätä jos otsikko tyhjä
-
+  if (!title) return;
   addTask({ title, deadline, courseId });
   taskForm.reset();
 });
+
+// --- Dashboardin päivitys ---
+function updateDashboard() {
+  const courseCountEl = document.getElementById("course-count");
+  const taskCountEl = document.getElementById("task-count");
+  const taskNoDeadlineEl = document.getElementById("task-no-deadline");
+
+  if (!courseCountEl || !taskCountEl || !taskNoDeadlineEl) return;
+
+  courseCountEl.textContent = `Kursseja yhteensä: ${courses.length}`;
+  taskCountEl.textContent = `Tehtäviä yhteensä: ${tasks.length}`;
+
+  const noDeadline = tasks.filter(t => !t.deadline).length;
+  taskNoDeadlineEl.textContent = `Ilman deadlinea: ${noDeadline}`;
+}
 
 // --- Alustetaan näkymä ---
 refreshCourseSelect();
 renderCourses();
 renderTasks();
+updateDashboard();
