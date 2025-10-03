@@ -15,3 +15,8 @@ const storage = {
 
 // Data
 let courses = storage.read(STORAGE_KEYS.COURSES);
+// --- UI-elementit ---
+const courseForm = document.getElementById("course-form");
+const courseList = document.getElementById("course-list");
+const courseName = document.getElementById("course-name");
+const courseCode = document.getElementById("course-code");
