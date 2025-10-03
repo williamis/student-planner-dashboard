@@ -21,6 +21,12 @@ const courseForm = document.getElementById("course-form");
 const courseList = document.getElementById("course-list");
 const courseName = document.getElementById("course-name");
 const courseCode = document.getElementById("course-code");
+const taskForm = document.getElementById("task-form");
+const taskList = document.getElementById("task-list");
+const taskTitle = document.getElementById("task-title");
+const taskDeadline = document.getElementById("task-deadline");
+const taskCourseSelect = document.getElementById("task-course");
+
 
 // --- Kurssin lisääminen ---
 function addCourse({ name, code }) {
