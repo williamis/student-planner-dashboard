@@ -37,3 +37,14 @@ courseForm.addEventListener("submit", (e) => {
   addCourse({ name, code });
   courseForm.reset();
 });
+
+// --- Kurssien näyttö ---
+function renderCourses() {
+  courseList.innerHTML = "";
+  courses.forEach(c => {
+    const li = document.createElement("li");
+    li.textContent = `${c.name} (${c.code})`;
+    courseList.appendChild(li);
+  });
+}
+renderCourses();
