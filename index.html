@@ -8,7 +8,9 @@
 </head>
 <body>
   <header><h1>Study Planner</h1></header>
- <main class="layout">
+
+  <main class="layout">
+    <!-- Kurssit -->
     <section id="courses" class="panel">
       <h2>Kurssit</h2>
       <form id="course-form" autocomplete="off">
@@ -19,6 +21,7 @@
       <ul id="course-list"></ul>
     </section>
 
+    <!-- Tehtävät -->
     <section id="tasks" class="panel">
       <h2>Tehtävät</h2>
       <form id="task-form" autocomplete="off">
@@ -30,28 +33,26 @@
       <ul id="task-list"></ul>
     </section>
 
-    <div id="dashboard">
-      <h3>Dashboard</h3>
+    <!-- Dashboard -->
+    <section id="dashboard" class="panel">
+      <h2>Dashboard</h2>
       <p id="course-count"></p>
       <p id="task-count"></p>
       <p id="task-no-deadline"></p>
-    </div>
 
-</div>
+      <h3>Tehtävät (deadlinella vs ilman)</h3>
+      <canvas id="deadlineChart"></canvas>
+    </section>
 
+    <!-- Kalenteri -->
     <section id="calendar" class="panel">
       <h2>Kalenteri</h2>
       <div id="calendar-grid"></div>
     </section>
-
-    <section id="dashboard" class="panel">
-      <h2>Dashboard</h2>
-      <canvas id="chart-done-vs-todo" height="220"></canvas>
-    </section>
   </main>
 
+  <!-- Scriptit (vain kerran!) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="app.js"></script>
-
-  </body>
+</body>
 </html>
