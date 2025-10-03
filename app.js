@@ -116,6 +116,26 @@ function renderTasks() {
     taskList.appendChild(li);
   });
 }
+// --- Tehtävän lisääminen ---
+function addTask({ title, deadline, courseId }) {
+  const id = crypto.randomUUID();
+  tasks.push({ id, title, deadline, courseId });
+  storage.write(STORAGE_KEYS.TASKS, tasks);
+  renderTasks();
+}
+
+taskForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const title = taskTitle.value.trim();
+  const deadline = taskDeadline.value;
+  const courseId = taskCourseSelect.value;
+
+  if (!title) return; // ei lisätä jos otsikko tyhjä
+
+  addTask({ title, deadline, courseId });
+  taskForm.reset();
+});
+
 
 // --- Alustetaan näkymä ---
 refreshCourseSelect();
