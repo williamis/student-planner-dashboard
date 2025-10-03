@@ -84,6 +84,21 @@ function renderCourses() {
       }
     })
   );
+
+  // Päivitä kurssi-dropdown kun kurssilista muuttuu
+  refreshCourseSelect();
 }
 
-renderCourses();
+// --- Kurssivalikon päivitys tehtäviä varten ---
+function refreshCourseSelect() {
+  if (!taskCourseSelect) return; // varmistus jos lomaketta ei ole
+  taskCourseSelect.innerHTML = `<option value="">(valitse kurssi)</option>`;
+  courses.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.name;
+    taskCourseSelect.appendChild(opt);
+  });
+}
+refreshCourseSelect();
+
