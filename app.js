@@ -43,22 +43,40 @@ function renderCourses() {
   courseList.innerHTML = "";
   courses.forEach(c => {
     const li = document.createElement("li");
-    li.textContent = `${c.name} (${c.code})`;
+    li.innerHTML = `
+      <span>${c.name} (${c.code})</span>
+      <button data-edit="${c.id}">Muokkaa</button>
+      <button data-id="${c.id}">Poista</button>
+    `;
     courseList.appendChild(li);
   });
+
+  // Poisto
+  courseList.querySelectorAll("button[data-id]").forEach(btn =>
+    btn.addEventListener("click", () => {
+      courses = courses.filter(x => x.id !== btn.dataset.id);
+      storage.write(STORAGE_KEYS.COURSES, courses);
+      renderCourses();
+    })
+  );
+
+  // Muokkaus
+  courseList.querySelectorAll("button[data-edit]").forEach(btn =>
+    btn.addEventListener("click", () => {
+      const course = courses.find(x => x.id === btn.dataset.edit);
+      if (!course) return;
+
+      const newName = prompt("Anna uusi nimi:", course.name);
+      const newCode = prompt("Anna uusi koodi:", course.code);
+
+      if (newName !== null) {
+        course.name = newName.trim();
+        course.code = newCode.trim();
+        storage.write(STORAGE_KEYS.COURSES, courses);
+        renderCourses();
+      }
+    })
+  );
 }
+
 renderCourses();
-
-li.innerHTML = `
-  <span>${c.name} (${c.code})</span>
-  <button data-id="${c.id}">Poista</button>
-`;
-courseList.appendChild(li);
-
-courseList.querySelectorAll("button[data-id]").forEach(btn =>
-  btn.addEventListener("click", () => {
-    courses = courses.filter(x => x.id !== btn.dataset.id);
-    storage.write(STORAGE_KEYS.COURSES, courses);
-    renderCourses();
-  })
-);
