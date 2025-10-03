@@ -48,3 +48,17 @@ function renderCourses() {
   });
 }
 renderCourses();
+
+li.innerHTML = `
+  <span>${c.name} (${c.code})</span>
+  <button data-id="${c.id}">Poista</button>
+`;
+courseList.appendChild(li);
+
+courseList.querySelectorAll("button[data-id]").forEach(btn =>
+  btn.addEventListener("click", () => {
+    courses = courses.filter(x => x.id !== btn.dataset.id);
+    storage.write(STORAGE_KEYS.COURSES, courses);
+    renderCourses();
+  })
+);
