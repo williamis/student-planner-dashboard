@@ -13,3 +13,27 @@ li { padding: 8px; border: 1px solid #374151; border-radius: 8px; display: flex;
 #calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
 #calendar-grid .day { border: 1px dashed #374151; min-height: 80px; border-radius: 8px; padding: 6px; }
 @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+#calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-top: 1em;
+}
+.calendar-day {
+  border: 1px solid #ccc;
+  min-height: 80px;
+  padding: 4px;
+  font-size: 0.9em;
+}
+.calendar-day span.date {
+  font-weight: bold;
+  display: block;
+}
+.calendar-task {
+  background: #36A2EB;
+  color: white;
+  padding: 2px 4px;
+  margin: 2px 0;
+  border-radius: 4px;
+  font-size: 0.8em;
+}

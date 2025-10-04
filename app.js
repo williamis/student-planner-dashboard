@@ -91,7 +91,8 @@ function renderCourses() {
   );
 
   refreshCourseSelect();
-  updateDashboard();   // Päivitä dashboard
+  updateDashboard();
+  renderCalendar();
 }
 
 // --- Kurssivalikon päivitys tehtäviä varten ---
@@ -151,7 +152,8 @@ function renderTasks() {
     })
   );
 
-  updateDashboard();   // Päivitä dashboard
+  updateDashboard();
+  renderCalendar();
 }
 
 // --- Tehtävän lisääminen ---
@@ -233,8 +235,51 @@ function updateDashboard() {
   }
 }
 
+// --- Kalenterinäkymä ---
+function renderCalendar(year = new Date().getFullYear(), month = new Date().getMonth()) {
+  const calendarGrid = document.getElementById("calendar-grid");
+  if (!calendarGrid) return;
+
+  calendarGrid.innerHTML = "";
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+
+  // Tyhjät ennen kuukauden ekaa päivää
+  for (let i = 0; i < firstDay.getDay(); i++) {
+    const empty = document.createElement("div");
+    empty.className = "calendar-day empty";
+    calendarGrid.appendChild(empty);
+  }
+
+  // Päivät
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    const date = new Date(year, month, d);
+    const cell = document.createElement("div");
+    cell.className = "calendar-day";
+
+    const span = document.createElement("span");
+    span.className = "date";
+    span.textContent = d;
+    cell.appendChild(span);
+
+    // Tehtävät tälle päivälle
+    tasks
+      .filter(t => t.deadline === date.toISOString().split("T")[0])
+      .forEach(t => {
+        const taskEl = document.createElement("div");
+        taskEl.className = "calendar-task";
+        taskEl.textContent = t.title;
+        cell.appendChild(taskEl);
+      });
+
+    calendarGrid.appendChild(cell);
+  }
+}
+
 // --- Alustetaan näkymä ---
 refreshCourseSelect();
 renderCourses();
 renderTasks();
 updateDashboard();
+renderCalendar();
