@@ -1,9 +1,8 @@
 console.log("Study Planner ready");
 
-// --- Chart-instanssit ---
 let deadlineChartInstance = null;
 let tasksPerCourseChartInstance = null;
-let doneVsTodoChartInstance = null; // <-- UUSI
+let doneVsTodoChartInstance = null;
 
 // --- Tallennuskerros ---
 const STORAGE_KEYS = { COURSES: "sp_courses", TASKS: "sp_tasks" };
@@ -125,6 +124,13 @@ function renderTasks() {
       <button data-edit="${t.id}">Muokkaa</button>
       <button data-id="${t.id}">Poista</button>
     `;
+
+    // Drag & drop (task-listasta kalenteriin)
+    li.setAttribute("draggable", "true");
+    li.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("text/plain", t.id);
+    });
+
     taskList.appendChild(li);
   });
 
@@ -249,7 +255,7 @@ function updateDashboard() {
     });
   }
 
-  // Graafi: Valmiit vs kesken <-- UUSI
+  // Graafi: Valmiit vs kesken
   const ctx3 = document.getElementById("doneVsTodoChart");
   if (ctx3) {
     if (doneVsTodoChartInstance) doneVsTodoChartInstance.destroy();
@@ -304,6 +310,21 @@ function renderCalendar() {
     const div = document.createElement("div");
     div.className = "calendar-day";
     div.innerHTML = `<span class="date">${day}</span>`;
+    div.dataset.date = date.toISOString().split("T")[0]; // droppi tarvitsee
+
+    // Tee päivä droppableksi
+    div.addEventListener("dragover", (e) => e.preventDefault());
+    div.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const taskId = e.dataTransfer.getData("text/plain");
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        task.deadline = div.dataset.date;
+        storage.write(STORAGE_KEYS.TASKS, tasks);
+        renderTasks();
+        renderCalendar();
+      }
+    });
 
     tasks
       .filter(t => t.deadline && new Date(t.deadline).toDateString() === date.toDateString())
@@ -311,6 +332,13 @@ function renderCalendar() {
         const taskEl = document.createElement("div");
         taskEl.className = "calendar-task";
         taskEl.textContent = t.title;
+
+        // Drag & drop (kalenterista toiseen päivään)
+        taskEl.setAttribute("draggable", "true");
+        taskEl.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/plain", t.id);
+        });
+
         div.appendChild(taskEl);
       });
 
@@ -334,3 +362,4 @@ renderCourses();
 renderTasks();
 updateDashboard();
 renderCalendar();
+
