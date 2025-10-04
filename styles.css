@@ -1,39 +1,154 @@
-:root { --gap: 12px; --bg: #0f172a; --panel: #111827; --text: #e5e7eb; --muted:#9ca3af; }
-* { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto; background: var(--bg); color: var(--text); }
-header { padding: 16px 20px; border-bottom: 1px solid #1f2937; }
-.layout { display: grid; gap: var(--gap); padding: var(--gap); grid-template-columns: 1fr 1fr; grid-auto-rows: minmax(300px, auto); }
-.panel { background: var(--panel); border: 1px solid #1f2937; border-radius: 10px; padding: 12px; }
-h2 { margin-top: 0; }
-form { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-input, select, button { padding: 8px 10px; border-radius: 8px; border: 1px solid #374151; background: #0b1220; color: var(--text); }
-ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
-li { padding: 8px; border: 1px solid #374151; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-.badge { font-size: 12px; color: var(--muted); }
-#calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-#calendar-grid .day { border: 1px dashed #374151; min-height: 80px; border-radius: 8px; padding: 6px; }
-@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+:root {
+  --gap: 12px;
+  --bg: #0f172a;
+  --panel: #111827;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #1f2937;
+}
+
+.layout {
+  display: grid;
+  gap: var(--gap);
+  padding: var(--gap);
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: minmax(300px, auto);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid #1f2937;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+input,
+select,
+button {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #374151;
+  background: #0b1220;
+  color: var(--text);
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+li {
+  padding: 8px;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Kalenterinäkymä --- */
 #calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
+  gap: 6px;
   margin-top: 1em;
 }
+
 .calendar-day {
-  border: 1px solid #ccc;
-  min-height: 80px;
-  padding: 4px;
-  font-size: 0.9em;
+  background: #0b1220;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  min-height: 100px;
+  padding: 6px;
+  font-size: 0.85em;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
 }
+
+.calendar-day.empty {
+  background: transparent;
+  border: none;
+}
+
 .calendar-day span.date {
   font-weight: bold;
-  display: block;
+  margin-bottom: 4px;
+  font-size: 0.9em;
+  color: var(--muted);
 }
+
 .calendar-task {
-  background: #36A2EB;
+  background: #2563eb;
   color: white;
-  padding: 2px 4px;
+  padding: 2px 6px;
   margin: 2px 0;
-  border-radius: 4px;
-  font-size: 0.8em;
+  border-radius: 6px;
+  font-size: 0.75em;
+  word-break: break-word;
+  cursor: default;
+  transition: background 0.2s;
+}
+
+.calendar-task:hover {
+  background: #1e40af;
+}
+/* --- Dashboard graafit --- */
+#dashboard canvas {
+  background: #0b1220;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  padding: 8px;
+  margin-top: 10px;
+}
+
+#dashboard h2, 
+#dashboard h3 {
+  margin-bottom: 6px;
+}
+
+#dashboard p {
+  font-size: 0.9em;
+  color: var(--muted);
+  margin: 4px 0;
 }
