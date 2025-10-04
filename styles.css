@@ -175,3 +175,11 @@ li {
   font-weight: bold;
 }
 
+#dashboard canvas {
+  width: 100% !important;
+  max-width: 400px;   /* sopiva max leveys */
+  aspect-ratio: 1 / 1; /* pitää ympyrän pyöreänä */
+  margin: 15px auto;
+  display: block;
+}
+
