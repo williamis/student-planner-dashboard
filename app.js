@@ -155,11 +155,18 @@ function renderTasks() {
 
 // --- Tehtävän lisääminen ---
 function addTask({ title, deadline, courseId }) {
+  // Jos deadline ei ole tyhjä, mutta se ei ole validi päivämäärä
+  if (deadline && isNaN(new Date(deadline).getTime())) {
+    alert("Anna validi päivämäärä (YYYY-MM-DD)");
+    return;
+  }
+
   const id = crypto.randomUUID();
   tasks.push({ id, title, deadline, courseId });
   storage.write(STORAGE_KEYS.TASKS, tasks);
   renderTasks();
 }
+
 
 taskForm.addEventListener("submit", (e) => {
   e.preventDefault();
