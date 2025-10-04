@@ -93,7 +93,7 @@ function renderCourses() {
   updateDashboard();
 }
 
-// --- Kurssivalikon päivitys tehtäviä varten ---
+// --- Kurssivalikon päivitys ---
 function refreshCourseSelect() {
   if (!taskCourseSelect) return;
   taskCourseSelect.innerHTML = `<option value="">(valitse kurssi)</option>`;
@@ -129,6 +129,7 @@ function renderTasks() {
       tasks = tasks.filter(x => x.id !== btn.dataset.id);
       storage.write(STORAGE_KEYS.TASKS, tasks);
       renderTasks();
+      renderCalendar();
     })
   );
 
@@ -146,6 +147,7 @@ function renderTasks() {
         task.deadline = newDeadline.trim();
         storage.write(STORAGE_KEYS.TASKS, tasks);
         renderTasks();
+        renderCalendar();
       }
     })
   );
@@ -155,7 +157,6 @@ function renderTasks() {
 
 // --- Tehtävän lisääminen ---
 function addTask({ title, deadline, courseId }) {
-  // Jos deadline ei ole tyhjä, mutta se ei ole validi päivämäärä
   if (deadline && isNaN(new Date(deadline).getTime())) {
     alert("Anna validi päivämäärä (YYYY-MM-DD)");
     return;
@@ -165,8 +166,8 @@ function addTask({ title, deadline, courseId }) {
   tasks.push({ id, title, deadline, courseId });
   storage.write(STORAGE_KEYS.TASKS, tasks);
   renderTasks();
+  renderCalendar();
 }
-
 
 taskForm.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -178,7 +179,7 @@ taskForm.addEventListener("submit", (e) => {
   taskForm.reset();
 });
 
-// --- Dashboardin päivitys ---
+// --- Dashboard ---
 function updateDashboard() {
   const courseCountEl = document.getElementById("course-count");
   const taskCountEl = document.getElementById("task-count");
@@ -188,19 +189,18 @@ function updateDashboard() {
 
   courseCountEl.textContent = `Kursseja yhteensä: ${courses.length}`;
   taskCountEl.textContent = `Tehtäviä yhteensä: ${tasks.length}`;
-
   const noDeadline = tasks.filter(t => !t.deadline).length;
   taskNoDeadlineEl.textContent = `Ilman deadlinea: ${noDeadline}`;
 
-  // --- Graafi 1: deadline vs ei deadlinea ---
-  const ctx1 = document.getElementById("chart-done-vs-todo");
-  if (ctx1) {
+  // Graafi: deadline vs ei deadlinea
+  const ctx = document.getElementById("deadlineChart");
+  if (ctx) {
+    if (deadlineChartInstance) deadlineChartInstance.destroy();
+
     const withDeadline = tasks.filter(t => t.deadline).length;
     const withoutDeadline = tasks.filter(t => !t.deadline).length;
 
-    if (deadlineChartInstance) deadlineChartInstance.destroy();
-
-    deadlineChartInstance = new Chart(ctx1, {
+    deadlineChartInstance = new Chart(ctx, {
       type: "pie",
       data: {
         labels: ["Deadline asetettu", "Ei deadlinea"],
@@ -212,23 +212,21 @@ function updateDashboard() {
     });
   }
 
-  // --- Graafi 2: tehtävät per kurssi ---
-  const ctx2 = document.getElementById("chart-tasks-per-course");
+  // Graafi: tehtävät per kurssi
+  const ctx2 = document.getElementById("tasksPerCourseChart");
   if (ctx2) {
-    const dataPerCourse = courses.map(c => ({
-      name: c.name,
-      count: tasks.filter(t => t.courseId === c.id).length
-    }));
-
     if (tasksPerCourseChartInstance) tasksPerCourseChartInstance.destroy();
+
+    const labels = courses.map(c => c.name);
+    const data = courses.map(c => tasks.filter(t => t.courseId === c.id).length);
 
     tasksPerCourseChartInstance = new Chart(ctx2, {
       type: "bar",
       data: {
-        labels: dataPerCourse.map(x => x.name),
+        labels,
         datasets: [{
           label: "Tehtävät",
-          data: dataPerCourse.map(x => x.count),
+          data,
           backgroundColor: "#36A2EB"
         }]
       }
@@ -236,48 +234,64 @@ function updateDashboard() {
   }
 }
 
-// --- Kalenterinäkymä ---
-function renderCalendar(year, month) {
-  const grid = document.getElementById("calendar-grid");
-  if (!grid) return;
+// --- Kalenteri ---
+let currentDate = new Date();
 
-  grid.innerHTML = "";
+function renderCalendar() {
+  const calendarGrid = document.getElementById("calendar-grid");
+  const monthLabel = document.getElementById("current-month");
+  if (!calendarGrid || !monthLabel) return;
 
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
+  calendarGrid.innerHTML = "";
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
 
-  const startDay = firstDay.getDay() === 0 ? 7 : firstDay.getDay();
+  monthLabel.textContent = currentDate.toLocaleDateString("fi-FI", {
+    month: "long",
+    year: "numeric"
+  });
 
-  for (let i = 1; i < startDay; i++) {
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
     const empty = document.createElement("div");
     empty.className = "calendar-day empty";
-    grid.appendChild(empty);
+    calendarGrid.appendChild(empty);
   }
 
-  for (let d = 1; d <= lastDay.getDate(); d++) {
-    const date = new Date(year, month, d);
-    const dayEl = document.createElement("div");
-    dayEl.className = "calendar-day";
-    dayEl.innerHTML = `<span class="date">${d}</span>`;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month, day);
+    const div = document.createElement("div");
+    div.className = "calendar-day";
+    div.innerHTML = `<span class="date">${day}</span>`;
 
-    const dayTasks = tasks.filter(t => t.deadline === date.toISOString().split("T")[0]);
+    tasks
+      .filter(t => t.deadline && new Date(t.deadline).toDateString() === date.toDateString())
+      .forEach(t => {
+        const taskEl = document.createElement("div");
+        taskEl.className = "calendar-task";
+        taskEl.textContent = t.title;
+        div.appendChild(taskEl);
+      });
 
-    dayTasks.forEach(t => {
-      const taskEl = document.createElement("div");
-      taskEl.className = "calendar-task";
-      taskEl.textContent = t.title;
-      dayEl.appendChild(taskEl);
-    });
-
-    grid.appendChild(dayEl);
+    calendarGrid.appendChild(div);
   }
 }
 
-// --- Alustetaan näkymä ---
+document.getElementById("prev-month").addEventListener("click", () => {
+  currentDate.setMonth(currentDate.getMonth() - 1);
+  renderCalendar();
+});
+
+document.getElementById("next-month").addEventListener("click", () => {
+  currentDate.setMonth(currentDate.getMonth() + 1);
+  renderCalendar();
+});
+
+// --- Alustus ---
 refreshCourseSelect();
 renderCourses();
 renderTasks();
 updateDashboard();
-const now = new Date();
-renderCalendar(now.getFullYear(), now.getMonth());
-
+renderCalendar();
