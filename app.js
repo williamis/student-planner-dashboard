@@ -1,7 +1,9 @@
 console.log("Study Planner ready");
 
+// --- Chart-instanssit ---
 let deadlineChartInstance = null;
 let tasksPerCourseChartInstance = null;
+let doneVsTodoChartInstance = null; // <-- UUSI
 
 // --- Tallennuskerros ---
 const STORAGE_KEYS = { COURSES: "sp_courses", TASKS: "sp_tasks" };
@@ -155,16 +157,15 @@ function renderTasks() {
     })
   );
 
-  // ✅ Vaihe 3: Toggle done/kesken
+  // Toggle (done/undone)
   taskList.querySelectorAll("input[data-toggle]").forEach(cb =>
     cb.addEventListener("change", () => {
-      const task = tasks.find(x => x.id === cb.dataset.toggle);
-      if (task) {
-        task.done = cb.checked;
-        storage.write(STORAGE_KEYS.TASKS, tasks);
-        renderTasks();   // päivittää listan
-        updateDashboard(); // päivittää dashboardin
-      }
+      const task = tasks.find(t => t.id === cb.dataset.toggle);
+      if (!task) return;
+      task.done = cb.checked;
+      storage.write(STORAGE_KEYS.TASKS, tasks);
+      renderTasks();
+      renderCalendar();
     })
   );
 
@@ -179,7 +180,7 @@ function addTask({ title, deadline, courseId }) {
   }
 
   const id = crypto.randomUUID();
-  tasks.push({ id, title, deadline, courseId, done: false }); // uusi kenttä done
+  tasks.push({ id, title, deadline, courseId, done: false });
   storage.write(STORAGE_KEYS.TASKS, tasks);
   renderTasks();
 }
@@ -244,6 +245,29 @@ function updateDashboard() {
           data,
           backgroundColor: "#36A2EB"
         }]
+      }
+    });
+  }
+
+  // Graafi: Valmiit vs kesken <-- UUSI
+  const ctx3 = document.getElementById("doneVsTodoChart");
+  if (ctx3) {
+    if (doneVsTodoChartInstance) doneVsTodoChartInstance.destroy();
+
+    const doneCount = tasks.filter(t => t.done).length;
+    const todoCount = tasks.length - doneCount;
+
+    doneVsTodoChartInstance = new Chart(ctx3, {
+      type: "doughnut",
+      data: {
+        labels: ["Valmis", "Kesken"],
+        datasets: [{
+          data: [doneCount, todoCount],
+          backgroundColor: ["#22c55e", "#f59e0b"]
+        }]
+      },
+      options: {
+        plugins: { legend: { position: "bottom" } }
       }
     });
   }
