@@ -114,7 +114,10 @@ function renderTasks() {
       courses.find(c => c.id === t.courseId)?.name || "Ei kurssia";
 
     li.innerHTML = `
-      <span>${t.title}</span>
+      <input type="checkbox" data-toggle="${t.id}" ${t.done ? "checked" : ""} />
+      <span style="text-decoration: ${t.done ? "line-through" : "none"}">
+        ${t.title}
+      </span>
       <span class="badge">${courseName}</span>
       <span class="badge">${t.deadline || "-"}</span>
       <button data-edit="${t.id}">Muokkaa</button>
@@ -152,6 +155,19 @@ function renderTasks() {
     })
   );
 
+  // ✅ Vaihe 3: Toggle done/kesken
+  taskList.querySelectorAll("input[data-toggle]").forEach(cb =>
+    cb.addEventListener("change", () => {
+      const task = tasks.find(x => x.id === cb.dataset.toggle);
+      if (task) {
+        task.done = cb.checked;
+        storage.write(STORAGE_KEYS.TASKS, tasks);
+        renderTasks();   // päivittää listan
+        updateDashboard(); // päivittää dashboardin
+      }
+    })
+  );
+
   updateDashboard();
 }
 
@@ -163,10 +179,9 @@ function addTask({ title, deadline, courseId }) {
   }
 
   const id = crypto.randomUUID();
-  tasks.push({ id, title, deadline, courseId });
+  tasks.push({ id, title, deadline, courseId, done: false }); // uusi kenttä done
   storage.write(STORAGE_KEYS.TASKS, tasks);
   renderTasks();
-  renderCalendar();
 }
 
 taskForm.addEventListener("submit", (e) => {
