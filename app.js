@@ -2,7 +2,7 @@ console.log("Study Planner ready");
 
 let deadlineChartInstance = null;
 let tasksPerCourseChartInstance = null;
-let doneVsTodoChartInstance = null;
+let doneVsTodoChartInstance = null; // uusi kaavio valmis/kesken
 
 // --- Tallennuskerros ---
 const STORAGE_KEYS = { COURSES: "sp_courses", TASKS: "sp_tasks" };
@@ -32,6 +32,9 @@ const taskList = document.getElementById("task-list");
 const taskTitle = document.getElementById("task-title");
 const taskDeadline = document.getElementById("task-deadline");
 const taskCourseSelect = document.getElementById("task-course");
+
+const filterCourse = document.getElementById("filter-course");
+const filterStatus = document.getElementById("filter-status");
 
 // --- Kurssin lisääminen ---
 function addCourse({ name, code }) {
@@ -91,6 +94,7 @@ function renderCourses() {
   );
 
   refreshCourseSelect();
+  refreshFilterCourse();
   updateDashboard();
 }
 
@@ -106,10 +110,36 @@ function refreshCourseSelect() {
   });
 }
 
+function refreshFilterCourse() {
+  if (!filterCourse) return;
+  filterCourse.innerHTML = `<option value="">Kaikki kurssit</option>`;
+  courses.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.name;
+    filterCourse.appendChild(opt);
+  });
+}
+
 // --- Tehtävien näyttö ---
 function renderTasks() {
   taskList.innerHTML = "";
-  tasks.forEach(t => {
+
+  let filtered = [...tasks];
+
+  if (filterCourse && filterCourse.value) {
+    filtered = filtered.filter(t => t.courseId === filterCourse.value);
+  }
+
+  if (filterStatus) {
+    if (filterStatus.value === "done") {
+      filtered = filtered.filter(t => t.done);
+    } else if (filterStatus.value === "todo") {
+      filtered = filtered.filter(t => !t.done);
+    }
+  }
+
+  filtered.forEach(t => {
     const li = document.createElement("li");
     const courseName =
       courses.find(c => c.id === t.courseId)?.name || "Ei kurssia";
@@ -124,17 +154,21 @@ function renderTasks() {
       <button data-edit="${t.id}">Muokkaa</button>
       <button data-id="${t.id}">Poista</button>
     `;
-
-    // Drag & drop (task-listasta kalenteriin)
-    li.setAttribute("draggable", "true");
-    li.addEventListener("dragstart", (e) => {
-      e.dataTransfer.setData("text/plain", t.id);
-    });
-
     taskList.appendChild(li);
   });
 
-  // Poisto
+  taskList.querySelectorAll("input[data-toggle]").forEach(cb =>
+    cb.addEventListener("change", () => {
+      const task = tasks.find(x => x.id === cb.dataset.toggle);
+      if (task) {
+        task.done = cb.checked;
+        storage.write(STORAGE_KEYS.TASKS, tasks);
+        renderTasks();
+        updateDashboard();
+      }
+    })
+  );
+
   taskList.querySelectorAll("button[data-id]").forEach(btn =>
     btn.addEventListener("click", () => {
       tasks = tasks.filter(x => x.id !== btn.dataset.id);
@@ -144,7 +178,6 @@ function renderTasks() {
     })
   );
 
-  // Muokkaus
   taskList.querySelectorAll("button[data-edit]").forEach(btn =>
     btn.addEventListener("click", () => {
       const task = tasks.find(x => x.id === btn.dataset.edit);
@@ -160,18 +193,6 @@ function renderTasks() {
         renderTasks();
         renderCalendar();
       }
-    })
-  );
-
-  // Toggle (done/undone)
-  taskList.querySelectorAll("input[data-toggle]").forEach(cb =>
-    cb.addEventListener("change", () => {
-      const task = tasks.find(t => t.id === cb.dataset.toggle);
-      if (!task) return;
-      task.done = cb.checked;
-      storage.write(STORAGE_KEYS.TASKS, tasks);
-      renderTasks();
-      renderCalendar();
     })
   );
 
@@ -200,6 +221,10 @@ taskForm.addEventListener("submit", (e) => {
   addTask({ title, deadline, courseId });
   taskForm.reset();
 });
+
+// --- Filtterit ---
+if (filterCourse) filterCourse.addEventListener("change", renderTasks);
+if (filterStatus) filterStatus.addEventListener("change", renderTasks);
 
 // --- Dashboard ---
 function updateDashboard() {
@@ -230,7 +255,8 @@ function updateDashboard() {
           data: [withDeadline, withoutDeadline],
           backgroundColor: ["#36A2EB", "#FF6384"]
         }]
-      }
+      },
+      options: { responsive: true, maintainAspectRatio: true }
     });
   }
 
@@ -251,30 +277,29 @@ function updateDashboard() {
           data,
           backgroundColor: "#36A2EB"
         }]
-      }
+      },
+      options: { responsive: true, maintainAspectRatio: true }
     });
   }
 
-  // Graafi: Valmiit vs kesken
+  // Graafi: valmiit vs kesken
   const ctx3 = document.getElementById("doneVsTodoChart");
   if (ctx3) {
     if (doneVsTodoChartInstance) doneVsTodoChartInstance.destroy();
 
-    const doneCount = tasks.filter(t => t.done).length;
-    const todoCount = tasks.length - doneCount;
+    const done = tasks.filter(t => t.done).length;
+    const todo = tasks.filter(t => !t.done).length;
 
     doneVsTodoChartInstance = new Chart(ctx3, {
       type: "doughnut",
       data: {
         labels: ["Valmis", "Kesken"],
         datasets: [{
-          data: [doneCount, todoCount],
-          backgroundColor: ["#22c55e", "#f59e0b"]
+          data: [done, todo],
+          backgroundColor: ["#10B981", "#F59E0B"]
         }]
       },
-      options: {
-        plugins: { legend: { position: "bottom" } }
-      }
+      options: { responsive: true, maintainAspectRatio: true }
     });
   }
 }
@@ -310,21 +335,6 @@ function renderCalendar() {
     const div = document.createElement("div");
     div.className = "calendar-day";
     div.innerHTML = `<span class="date">${day}</span>`;
-    div.dataset.date = date.toISOString().split("T")[0]; // droppi tarvitsee
-
-    // Tee päivä droppableksi
-    div.addEventListener("dragover", (e) => e.preventDefault());
-    div.addEventListener("drop", (e) => {
-      e.preventDefault();
-      const taskId = e.dataTransfer.getData("text/plain");
-      const task = tasks.find(t => t.id === taskId);
-      if (task) {
-        task.deadline = div.dataset.date;
-        storage.write(STORAGE_KEYS.TASKS, tasks);
-        renderTasks();
-        renderCalendar();
-      }
-    });
 
     tasks
       .filter(t => t.deadline && new Date(t.deadline).toDateString() === date.toDateString())
@@ -332,13 +342,6 @@ function renderCalendar() {
         const taskEl = document.createElement("div");
         taskEl.className = "calendar-task";
         taskEl.textContent = t.title;
-
-        // Drag & drop (kalenterista toiseen päivään)
-        taskEl.setAttribute("draggable", "true");
-        taskEl.addEventListener("dragstart", (e) => {
-          e.dataTransfer.setData("text/plain", t.id);
-        });
-
         div.appendChild(taskEl);
       });
 
@@ -358,8 +361,8 @@ document.getElementById("next-month").addEventListener("click", () => {
 
 // --- Alustus ---
 refreshCourseSelect();
+refreshFilterCourse();
 renderCourses();
 renderTasks();
 updateDashboard();
 renderCalendar();
-

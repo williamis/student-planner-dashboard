@@ -21,17 +21,30 @@
       <ul id="course-list"></ul>
     </section>
 
-    <!-- Tehtävät -->
-    <section id="tasks" class="panel">
-      <h2>Tehtävät</h2>
-      <form id="task-form" autocomplete="off">
-        <input id="task-title" placeholder="Tehtävän nimi" required />
-        <input id="task-deadline" type="date" />
-        <select id="task-course"></select>
-        <button type="submit">Lisää tehtävä</button>
-      </form>
-      <ul id="task-list"></ul>
-    </section>
+<!-- Tehtävät -->
+<section id="tasks" class="panel">
+  <h2>Tehtävät</h2>
+  <form id="task-form" autocomplete="off">
+    <input id="task-title" placeholder="Tehtävän nimi" required />
+    <input id="task-deadline" type="date" />
+    <select id="task-course"></select>
+    <button type="submit">Lisää tehtävä</button>
+  </form>
+
+  <!-- Suodatus -->
+  <div id="task-filters">
+    <select id="filter-course">
+      <option value="">Kaikki kurssit</option>
+    </select>
+    <select id="filter-status">
+      <option value="all">Kaikki</option>
+      <option value="done">Valmiit</option>
+      <option value="todo">Tekemättä</option>
+    </select>
+  </div>
+
+  <ul id="task-list"></ul>
+</section>
 
     <!-- Dashboard -->
     <section id="dashboard" class="panel">
