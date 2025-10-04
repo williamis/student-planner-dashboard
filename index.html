@@ -33,32 +33,34 @@
       <ul id="task-list"></ul>
     </section>
 
- <!-- Dashboard -->
-<section id="dashboard" class="panel">
-  <h2>Dashboard</h2>
-  <p id="course-count"></p>
-  <p id="task-count"></p>
-  <p id="task-no-deadline"></p>
+    <!-- Dashboard -->
+    <section id="dashboard" class="panel">
+      <h2>Dashboard</h2>
+      <p id="course-count"></p>
+      <p id="task-count"></p>
+      <p id="task-no-deadline"></p>
 
-  <h3>Tehtävät (deadlinella vs ilman)</h3>
-  <canvas id="deadlineChart"></canvas>
+      <h3>Tehtävät (deadlinella vs ilman)</h3>
+      <canvas id="deadlineChart"></canvas>
 
-  <h3>Tehtävät per kurssi</h3>
-  <canvas id="tasksPerCourseChart"></canvas>
-</section>
-
-
+      <h3>Tehtävät per kurssi</h3>
+      <canvas id="tasksPerCourseChart"></canvas>
+    </section>
 
     <!-- Kalenteri -->
     <section id="calendar" class="panel">
       <h2>Kalenteri</h2>
+      <div id="calendar-header">
+        <button id="prev-month">«</button>
+        <span id="current-month"></span>
+        <button id="next-month">»</button>
+      </div>
       <div id="calendar-grid"></div>
     </section>
   </main>
 
-  <!-- Scriptit (vain kerran!) -->
+  <!-- Scriptit -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
-
