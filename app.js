@@ -1,6 +1,5 @@
 console.log("Study Planner ready");
 
-// --- Graafien muuttujat ---
 let deadlineChartInstance = null;
 let tasksPerCourseChartInstance = null;
 
@@ -92,7 +91,6 @@ function renderCourses() {
 
   refreshCourseSelect();
   updateDashboard();
-  renderCalendar();
 }
 
 // --- Kurssivalikon päivitys tehtäviä varten ---
@@ -153,7 +151,6 @@ function renderTasks() {
   );
 
   updateDashboard();
-  renderCalendar();
 }
 
 // --- Tehtävän lisääminen ---
@@ -188,8 +185,8 @@ function updateDashboard() {
   const noDeadline = tasks.filter(t => !t.deadline).length;
   taskNoDeadlineEl.textContent = `Ilman deadlinea: ${noDeadline}`;
 
-  // --- Pie Chart: Deadlinella vs ilman ---
-  const ctx1 = document.getElementById("deadlineChart");
+  // --- Graafi 1: deadline vs ei deadlinea ---
+  const ctx1 = document.getElementById("chart-done-vs-todo");
   if (ctx1) {
     const withDeadline = tasks.filter(t => t.deadline).length;
     const withoutDeadline = tasks.filter(t => !t.deadline).length;
@@ -208,72 +205,64 @@ function updateDashboard() {
     });
   }
 
-  // --- Bar Chart: Tehtävät per kurssi ---
-  const ctx2 = document.getElementById("tasksPerCourseChart");
+  // --- Graafi 2: tehtävät per kurssi ---
+  const ctx2 = document.getElementById("chart-tasks-per-course");
   if (ctx2) {
-    if (tasksPerCourseChartInstance) tasksPerCourseChartInstance.destroy();
+    const dataPerCourse = courses.map(c => ({
+      name: c.name,
+      count: tasks.filter(t => t.courseId === c.id).length
+    }));
 
-    const courseLabels = courses.map(c => c.name);
-    const taskCounts = courses.map(c => tasks.filter(t => t.courseId === c.id).length);
+    if (tasksPerCourseChartInstance) tasksPerCourseChartInstance.destroy();
 
     tasksPerCourseChartInstance = new Chart(ctx2, {
       type: "bar",
       data: {
-        labels: courseLabels,
+        labels: dataPerCourse.map(x => x.name),
         datasets: [{
-          label: "Tehtävien määrä",
-          data: taskCounts,
-          backgroundColor: "#4CAF50"
+          label: "Tehtävät",
+          data: dataPerCourse.map(x => x.count),
+          backgroundColor: "#36A2EB"
         }]
-      },
-      options: {
-        scales: {
-          y: { beginAtZero: true }
-        }
       }
     });
   }
 }
 
 // --- Kalenterinäkymä ---
-function renderCalendar(year = new Date().getFullYear(), month = new Date().getMonth()) {
-  const calendarGrid = document.getElementById("calendar-grid");
-  if (!calendarGrid) return;
+function renderCalendar(year, month) {
+  const grid = document.getElementById("calendar-grid");
+  if (!grid) return;
 
-  calendarGrid.innerHTML = "";
+  grid.innerHTML = "";
 
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
 
-  // Tyhjät ennen kuukauden ekaa päivää
-  for (let i = 0; i < firstDay.getDay(); i++) {
+  const startDay = firstDay.getDay() === 0 ? 7 : firstDay.getDay();
+
+  for (let i = 1; i < startDay; i++) {
     const empty = document.createElement("div");
     empty.className = "calendar-day empty";
-    calendarGrid.appendChild(empty);
+    grid.appendChild(empty);
   }
 
-  // Päivät
   for (let d = 1; d <= lastDay.getDate(); d++) {
     const date = new Date(year, month, d);
-    const cell = document.createElement("div");
-    cell.className = "calendar-day";
+    const dayEl = document.createElement("div");
+    dayEl.className = "calendar-day";
+    dayEl.innerHTML = `<span class="date">${d}</span>`;
 
-    const span = document.createElement("span");
-    span.className = "date";
-    span.textContent = d;
-    cell.appendChild(span);
+    const dayTasks = tasks.filter(t => t.deadline === date.toISOString().split("T")[0]);
 
-    // Tehtävät tälle päivälle
-    tasks
-      .filter(t => t.deadline === date.toISOString().split("T")[0])
-      .forEach(t => {
-        const taskEl = document.createElement("div");
-        taskEl.className = "calendar-task";
-        taskEl.textContent = t.title;
-        cell.appendChild(taskEl);
-      });
+    dayTasks.forEach(t => {
+      const taskEl = document.createElement("div");
+      taskEl.className = "calendar-task";
+      taskEl.textContent = t.title;
+      dayEl.appendChild(taskEl);
+    });
 
-    calendarGrid.appendChild(cell);
+    grid.appendChild(dayEl);
   }
 }
 
@@ -282,4 +271,6 @@ refreshCourseSelect();
 renderCourses();
 renderTasks();
 updateDashboard();
-renderCalendar();
+const now = new Date();
+renderCalendar(now.getFullYear(), now.getMonth());
+
