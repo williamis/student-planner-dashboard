@@ -1,5 +1,7 @@
 console.log("Study Planner ready");
-let deadlineChartInstance = null;
+
+let chartDoneVsTodo;
+let chartTasksPerCourse;
 
 // --- Tallennuskerros ---
 const STORAGE_KEYS = { COURSES: "sp_courses", TASKS: "sp_tasks" };
@@ -87,9 +89,8 @@ function renderCourses() {
     })
   );
 
-  // Päivitä kurssi-dropdown kun kurssilista muuttuu
   refreshCourseSelect();
-  updateDashboard();   // <-- Dashboard päivittyy
+  updateDashboard(); // Päivitä dashboard
 }
 
 // --- Kurssivalikon päivitys tehtäviä varten ---
@@ -149,7 +150,7 @@ function renderTasks() {
     })
   );
 
-  updateDashboard();   // <-- Dashboard päivittyy
+  updateDashboard(); // Päivitä dashboard
 }
 
 // --- Tehtävän lisääminen ---
@@ -172,41 +173,47 @@ taskForm.addEventListener("submit", (e) => {
 
 // --- Dashboardin päivitys ---
 function updateDashboard() {
-  const courseCountEl = document.getElementById("course-count");
-  const taskCountEl = document.getElementById("task-count");
-  const taskNoDeadlineEl = document.getElementById("task-no-deadline");
+  const ctx1 = document.getElementById("chart-done-vs-todo").getContext("2d");
+  const ctx2 = document.getElementById("chart-tasks-per-course").getContext("2d");
 
-  if (!courseCountEl || !taskCountEl || !taskNoDeadlineEl) return;
+  // Lasketaan tehtävät
+  const done = tasks.filter(t => t.done).length;
+  const todo = tasks.filter(t => !t.done).length;
 
-  courseCountEl.textContent = `Kursseja yhteensä: ${courses.length}`;
-  taskCountEl.textContent = `Tehtäviä yhteensä: ${tasks.length}`;
-
-  const noDeadline = tasks.filter(t => !t.deadline).length;
-  taskNoDeadlineEl.textContent = `Ilman deadlinea: ${noDeadline}`;
-
-  // --- Piirretään graafi ---
-  const ctx = document.getElementById("deadlineChart");
-  if (ctx) {
-    const withDeadline = tasks.filter(t => t.deadline).length;
-    const withoutDeadline = tasks.filter(t => !t.deadline).length;
-
-    // Jos graafi on jo olemassa → tuhotaan
-    if (deadlineChartInstance) {
-      deadlineChartInstance.destroy();
+  // Doughnut (done vs todo)
+  if (chartDoneVsTodo) chartDoneVsTodo.destroy();
+  chartDoneVsTodo = new Chart(ctx1, {
+    type: "doughnut",
+    data: {
+      labels: ["Tehdyt", "Tekemättä"],
+      datasets: [{
+        data: [done, todo],
+        backgroundColor: ["#4caf50", "#f44336"]
+      }]
     }
+  });
 
-    // Piirretään uusi graafi ja tallennetaan muuttujaan
-    deadlineChartInstance = new Chart(ctx, {
-      type: "pie",
-      data: {
-        labels: ["Deadline asetettu", "Ei deadlinea"],
-        datasets: [{
-          data: [withDeadline, withoutDeadline],
-          backgroundColor: ["#36A2EB", "#FF6384"]
-        }]
+  // Bar (tehtävät per kurssi)
+  const courseNames = courses.map(c => c.name);
+  const taskCounts = courses.map(c => tasks.filter(t => t.courseId === c.id).length);
+
+  if (chartTasksPerCourse) chartTasksPerCourse.destroy();
+  chartTasksPerCourse = new Chart(ctx2, {
+    type: "bar",
+    data: {
+      labels: courseNames,
+      datasets: [{
+        label: "Tehtävien määrä",
+        data: taskCounts,
+        backgroundColor: "#2196f3"
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true }
       }
-    });
-  }
+    }
+  });
 }
 
 // --- Alustetaan näkymä ---
