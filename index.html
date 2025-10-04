@@ -7,7 +7,18 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header><h1>Study Planner</h1></header>
+  <header>
+  <h1>Study Planner</h1>
+  <div class="dropdown">
+    <button class="dropbtn">⚙ JSON</button>
+    <div class="dropdown-content">
+      <button id="export-json">Vie JSON</button>
+      <label for="import-json">Tuo JSON</label>
+      <input type="file" id="import-json" accept="application/json" />
+    </div>
+  </div>
+</header>
+
 
   <main class="layout">
     <!-- Kurssit -->
@@ -21,6 +32,7 @@
       <ul id="course-list"></ul>
     </section>
 
+    
 <!-- Tehtävät -->
 <section id="tasks" class="panel">
   <h2>Tehtävät</h2>

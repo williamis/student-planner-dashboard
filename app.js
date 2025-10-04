@@ -358,6 +358,53 @@ document.getElementById("next-month").addEventListener("click", () => {
   currentDate.setMonth(currentDate.getMonth() + 1);
   renderCalendar();
 });
+// --- Export JSON ---
+document.getElementById("export-json").addEventListener("click", () => {
+  const data = { courses, tasks };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "studyplanner-data.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+});
+
+// --- Import JSON ---
+document.getElementById("import-json").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (data.courses && data.tasks) {
+        courses = data.courses;
+        tasks = data.tasks;
+        storage.write(STORAGE_KEYS.COURSES, courses);
+        storage.write(STORAGE_KEYS.TASKS, tasks);
+
+        refreshCourseSelect();
+        refreshFilterCourse();
+        renderCourses();
+        renderTasks();
+        updateDashboard();
+        renderCalendar();
+
+        alert("Data tuotu onnistuneesti!");
+      } else {
+        alert("Virheellinen JSON-muoto.");
+      }
+    } catch {
+      alert("Virhe JSON-tiedoston lukemisessa.");
+    }
+  };
+  reader.readAsText(file);
+});
+
 
 // --- Alustus ---
 refreshCourseSelect();

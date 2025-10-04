@@ -196,3 +196,61 @@ li {
   background: #0b1220;
   color: var(--text);
 }
+
+
+/* --- Dropdown (Asetukset) --- */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropbtn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #374151;
+  background: #0b1220;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: var(--panel);
+  border: 1px solid #374151;
+  border-radius: 8px;
+  min-width: 150px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  z-index: 1;
+  padding: 8px;
+}
+
+.dropdown-content button,
+.dropdown-content label {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  margin: 4px 0;
+  text-align: left;
+  background: #0b1220;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+#import-json {
+  display: none;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #1f2937;
+}
